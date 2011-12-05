@@ -465,7 +465,7 @@ class _ApplyBlock(_Node):
 
 class _ControlBlock(_Node):
     def __init__(self, statement, body=None):
-        self.statement = statement
+        self.statement = statement.replace('\n', ' ')
         self.body = body
 
     def each_child(self):
@@ -479,7 +479,7 @@ class _ControlBlock(_Node):
 
 class _IntermediateControlBlock(_Node):
     def __init__(self, statement):
-        self.statement = statement
+        self.statement = statement.replace('\n', ' ')
 
     def generate(self, writer):
         writer.write_line("%s:" % self.statement, writer.indent_size() - 1)
@@ -487,7 +487,7 @@ class _IntermediateControlBlock(_Node):
 
 class _Statement(_Node):
     def __init__(self, statement):
-        self.statement = statement
+        self.statement = statement.replace('\n', ' ')
 
     def generate(self, writer):
         writer.write_line(self.statement)
@@ -495,7 +495,7 @@ class _Statement(_Node):
 
 class _Expression(_Node):
     def __init__(self, expression, raw=False):
-        self.expression = expression
+        self.expression = expression.replace('\n', ' ')
         self.raw = raw
 
     def generate(self, writer):
@@ -566,7 +566,7 @@ class _CodeWriter(object):
     def write_line(self, line, indent=None):
         if indent == None:
             indent = self._indent
-        for i in xrange(indent):
+        for _ in xrange(indent):
             self.file.write("    ")
         print >> self.file, line
 
@@ -677,7 +677,7 @@ def _parse(reader, template, in_block=None):
         # Expression
         if start_brace == "{{":
             end = reader.find("}}")
-            if end == -1 or reader.find("\n", 0, end) != -1:
+            if end == -1:# or reader.find("\n", 0, end) != -1:
                 raise ParseError("Missing end expression }} on line %d" % line)
             contents = reader.consume(end).strip()
             reader.consume(2)
@@ -689,7 +689,7 @@ def _parse(reader, template, in_block=None):
         # Block
         assert start_brace == "{%", start_brace
         end = reader.find("%}")
-        if end == -1 or reader.find("\n", 0, end) != -1:
+        if end == -1:# or reader.find("\n", 0, end) != -1:
             raise ParseError("Missing end block %%} on line %d" % line)
         contents = reader.consume(end).strip()
         reader.consume(2)
