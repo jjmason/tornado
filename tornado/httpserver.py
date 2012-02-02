@@ -389,8 +389,10 @@ class HTTPRequest( object ):
         self.arguments = {}
         for name, values in arguments.iteritems():
             #values = [v for v in values if v]
+            #Changed by jon: we need something like Xyz=1&Foo= to parse as
+            #{"Xyz": ["1"], "Foo" : [""]}
             if values: self.arguments[name] = values
-
+            else: self.arguments[name] = [""]
     def supports_http_1_1( self ):
         """Returns True if this request supports HTTP/1.1 semantics"""
         return self.version == "HTTP/1.1"
